@@ -6,6 +6,10 @@ import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @Author: Jef
+ * @Date: 2021/4/20 16:36
+ */
 @Configuration
 public class GrayConfiguration {
 
