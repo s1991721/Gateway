@@ -5,4 +5,4 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true #¿ªÆôÂ·ÓÉ
+          enabled: true #å¼€å¯è·¯ç”±
