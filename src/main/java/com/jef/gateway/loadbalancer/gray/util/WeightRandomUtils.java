@@ -1,4 +1,4 @@
-package com.jef.gateway.util;
+package com.jef.gateway.loadbalancer.gray.util;
 
 import org.springframework.cloud.client.ServiceInstance;
 

@@ -1,4 +1,4 @@
-package com.jef.gateway;
+package com.jef.gateway.loadbalancer.gray;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;

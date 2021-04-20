@@ -1,7 +1,7 @@
-package com.jef.gateway;
+package com.jef.gateway.loadbalancer.gray;
 
-import com.jef.gateway.util.WeightMeta;
-import com.jef.gateway.util.WeightRandomUtils;
+import com.jef.gateway.loadbalancer.gray.util.WeightMeta;
+import com.jef.gateway.loadbalancer.gray.util.WeightRandomUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cloud.client.ServiceInstance;

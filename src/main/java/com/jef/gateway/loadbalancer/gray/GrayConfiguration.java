@@ -1,4 +1,4 @@
-package com.jef.gateway;
+package com.jef.gateway.loadbalancer.gray;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerProperties;
