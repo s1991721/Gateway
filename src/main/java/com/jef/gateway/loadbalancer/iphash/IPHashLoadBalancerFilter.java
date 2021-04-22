@@ -11,10 +11,13 @@ import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier;
 import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.List;
 
 /**
  * @Author: Jef
@@ -36,7 +39,7 @@ public class IPHashLoadBalancerFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         //是否开启IPhash开关
-        boolean open = false;
+        boolean open = true;
 
         if (!open) {
             return chain.filter(exchange);
@@ -76,9 +79,45 @@ public class IPHashLoadBalancerFilter implements GlobalFilter, Ordered {
     }
 
     private Request createRequest(ServerWebExchange exchange) {
-        String ip = exchange.getRequest().getLocalAddress().getAddress().getHostAddress();
+        String ip = getIPAddress(exchange.getRequest());
         Request<String> request = new DefaultRequest<>(ip);
         return request;
+    }
+
+    public static String getIPAddress(ServerHttpRequest request) {
+        String ip = null;
+
+        HttpHeaders headers=request.getHeaders();
+
+        //X-Forwarded-For：Squid 服务代理
+        List<String> ipAddresses = headers.get("X-Forwarded-For");
+        if (ipAddresses == null || ipAddresses.size() == 0) {
+            //Proxy-Client-IP：apache 服务代理
+            ipAddresses = headers.get("Proxy-Client-IP");
+        }
+        if (ipAddresses == null || ipAddresses.size() == 0 ) {
+            //WL-Proxy-Client-IP：weblogic 服务代理
+            ipAddresses = headers.get("WL-Proxy-Client-IP");
+        }
+        if (ipAddresses == null || ipAddresses.size() == 0 ) {
+            //HTTP_CLIENT_IP：有些代理服务器
+            ipAddresses = headers.get("HTTP_CLIENT_IP");
+        }
+        if (ipAddresses == null || ipAddresses.size() == 0 ) {
+            //X-Real-IP：nginx服务代理
+            ipAddresses = headers.get("X-Real-IP");
+        }
+
+        //有些网络通过多层代理，那么获取到的ip就会有多个，一般都是通过逗号（,）分割开来，并且第一个ip为客户端的真实IP
+        if (ipAddresses != null && ipAddresses.size() != 0) {
+            ip = ipAddresses.get(0);
+        }
+
+        //还是不能获取到，最后再通过request.getRemoteAddr();获取
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddress().getAddress().getHostAddress();
+        }
+        return ip.equals("0:0:0:0:0:0:0:1")?"127.0.0.1":ip;
     }
 
     protected URI reconstructURI(ServiceInstance serviceInstance, URI original) {
